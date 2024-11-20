@@ -1,0 +1,15 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Temporary files
+temp/
+prev/
+
+# VS Code
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,29 @@
+# Multi-band EON Thesis
+
+Comparative analysis of multi-band optical networks focusing on Elastic Optical Networks (EON) in C+L bands versus fixed-grid networks in C+L+E/S bands. Research on network capacity, spectrum efficiency, and performance optimization.
+
+## Table of Contents
+- [Overview](#overview)
+- [Results](#results)
+- [Project Structure](#project-structure)
+- [Usage](#usage)
+- [Dependencies](#dependencies)
+- [Installation](#installation)
+- [Documentation](#documentation)
+- [License](#license)
+
+## Overview
+[Brief description of the research objectives and methodology]
+
+## Results
+[Key findings and conclusions]
+
+## Project Structure
+project/
+├── data/           # Simulation data
+├── graphs/         # Generated figures
+├── scripts/        # Analysis scripts
+└── tex/           # LaTeX source files
+
+## Usage
+[Instructions on how to run simulations/analysis]
