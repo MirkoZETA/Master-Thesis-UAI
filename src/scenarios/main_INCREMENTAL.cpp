@@ -1,5 +1,5 @@
-#include "./src/functions.hpp"
-#include "./src/simulator_incremental.hpp"
+#include "../functions.hpp"
+#include "../simulator_incremental.hpp"
 #include <random>
 #include <chrono>
 

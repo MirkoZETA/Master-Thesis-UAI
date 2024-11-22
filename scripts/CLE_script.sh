@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Archivo fuente y ejecutable
-source="main_DYNAMIC_CLE.cpp"
+source="./src/scenarios/main_DYNAMIC_CLE.cpp"
 executable="./temp/CLE.out"
 
 # Número de veces a ejecutar el archivo

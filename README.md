@@ -27,23 +27,23 @@ The study evaluates network capacity, spectrum efficiency, blocking probability 
 ## Project Structure
 ```
 project/
-├── src/                            # Source code files
-│   ├── profiles/                   # Traffic demands and bit rates
-│   ├── topologies/                 # Network topology definitions
-│   ├── functions.hpp               # Core functions
-│   ├── simulator_incremental.hpp   # Incremental traffic simulation library
-│   └── simulator.hpp               # Dynamic traffic simulation library
-├── scripts/                        # Execution scripts
-│   ├── CL_50_script.sh            # C+L 50GHz simulation
-│   ├── CL_125_script.sh           # C+L 12.5GHz simulation
-│   ├── CL_625_script.sh           # C+L 6.25GHz simulation
-│   ├── CLS_script.sh              # C+L+S simulation
-│   ├── CLE_script.sh              # C+L+E simulation
-│   └── INCREMENTAL_script.sh      # Capacity analysis
-├── results/                        # Simulation results
-├── results_original/               # Published benchmark results
-├── temp/                          # Temporary executables
-├── main_*.cpp                     # Main simulation files
+├── src/                        # Source code files
+│   ├── profiles/              # Traffic demands and bit rates
+│   ├── topologies/            # Network topology definitions
+│   ├── scenarios/*.cpp        # Main simulation files (containing core logic)
+│   ├── functions.hpp          # Auxiliary functions
+│   ├── simulator_incremental.hpp  # Flex Net Sim library for incremental traffic
+│   └── simulator.hpp          # Flex Net Sim library for dynamic traffic
+├── scripts/                   # Execution scripts (run from root directory)
+│   ├── CL_50_script.sh       # C+L 50GHz simulation
+│   ├── CL_125_script.sh      # C+L 12.5GHz simulation
+│   ├── CL_625_script.sh      # C+L 6.25GHz simulation
+│   ├── CLS_script.sh         # C+L+S simulation
+│   ├── CLE_script.sh         # C+L+E simulation
+│   └── INCREMENTAL_script.sh # Capacity analysis
+├── results/                   # Simulation results
+├── results_original/          # Published results
+├── temp/                      # Temporary executables
 └── README.md
 ```
 ## Usage Instructions

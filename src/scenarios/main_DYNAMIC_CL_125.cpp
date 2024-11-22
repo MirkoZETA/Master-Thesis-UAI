@@ -1,7 +1,9 @@
-#include "./src/functions.hpp"
-#include "./src/simulator.hpp"
+#include "../functions.hpp"
+#include "../simulator.hpp"
 #include <random>
 #include <chrono>
+
+
 
 BEGIN_ALLOC_FUNCTION(FirstFit) {
     // Variables de control
@@ -169,88 +171,166 @@ END_UNALLOC_CALLBACK_FUNCTION
 
 int main(int argc, char* argv[]) {
 
-    // 625
-    // pesoBitRate[0] = 3.5 * 0.0625;
-    // pesoBitRate[1] = 6.83 * 0.0625;
-    // pesoBitRate[2] = 9.83 * 0.0625;
-    // pesoBitRate[3] = 13.33 * 0.0625;
+    escenario = CL;
+
+        // Lista de nombres de archivos a guardar
+    std::vector<std::string> archivosSalida = {
+        "./results/NSFNet_CL_125_BestFit.csv",
+        "./results/NSFNet_CL_125_FirstFit.csv",
+        "./results/EuroCore_CL_125_BestFit.csv",
+        "./results/EuroCore_CL_125_FirstFit.csv",
+        "./results/UKNet_CL_125_BestFit.csv",
+        "./results/UKNet_CL_125_FirstFit.csv",
+    };
+
+    // Archivos topologia y bitrate
+    std::vector<std::string> topologias = {
+        "./src/topologies/NSFNet_CL_125.json",
+        "./src/topologies/NSFNet_CL_125.json",
+        "./src/topologies/EuroCore_CL_125.json",
+        "./src/topologies/EuroCore_CL_125.json",
+        "./src/topologies/UKNet_CL_125.json",
+        "./src/topologies/UKNet_CL_125.json",
+    };
+
+    std::vector<std::string> rutas = {
+        "./src/topologies/NSFNet_routes.json",
+        "./src/topologies/NSFNet_routes.json",
+        "./src/topologies/EuroCore_routes.json",
+        "./src/topologies/EuroCore_routes.json",
+        "./src/topologies/UKNet_routes.json",
+        "./src/topologies/UKNet_routes.json",
+    };
+
+    std::vector<std::string> bitrates = {
+        "./src/profiles/bitrates_CL_625.json",
+        "./src/profiles/bitrates_CL_125.json",
+        "./src/profiles/bitrates_CL_50.json",
+        "./src/profiles/bitrates_CLE.json",
+        "./src/profiles/bitrates_CLS.json"
+    };
+
+    // Vector de vectores int con cargas de trafico con el formato {Inicio,Final,Incremento}
+    std::vector<std::vector<int>> traficos = {
+        {1000, 4000, 250},
+        {1000, 4000, 250},
+        {2500, 8000, 500},
+        {2500, 8000, 500},
+        {2500, 8000, 500},
+        {2500, 8000, 500},
+    };
 
     // 125
-    // pesoBitRate[0] = 1.83 * 0.125;
-    // pesoBitRate[1] = 3.50 * 0.125;
-    // pesoBitRate[2] = 5.0 * 0.125;
-    // pesoBitRate[3] = 5.50 * 0.125;
-
-    // 50
-    pesoBitRate[0] = 1.0 * 0.5;
-    pesoBitRate[1] = 1.5 * 0.5;
-    pesoBitRate[2] = 3.0 * 0.5;
-    pesoBitRate[3] = 2.25 * 0.5;
+    pesoBitRate[0] = 1.83 * 0.125;
+    pesoBitRate[1] = 3.50 * 0.125;
+    pesoBitRate[2] = 5.0 * 0.125;
+    pesoBitRate[3] = 5.50 * 0.125;
 
     // Para las semillas
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-    // Abrir archivo de salida
-    file.open("./results/test.csv", std::ios_base::app);
+    // Por cada arhivo de salida
+    for (size_t a = 0; a < 6; a+=2){
+        // Se crea el archivo
+        file.open(archivosSalida[a], std::ios_base::app);
 
-    // Setear variables de BBP
-    for (size_t i = 0; i < 4; i++) {
-        totalBitRate[i] = 0.0;
-        bloqueadosBitRate[i] = 0.0;
-    }
+        // Setear variables de BBP
+        for (size_t i = 0; i < 4; i++) {
+            totalBitRate[i] = 0.0;
+            bloqueadosBitRate[i] = 0.0;
+        }
 
-    // Simulacion
-    for (int lambda = 2500; lambda <= 8000; lambda+=500) {
+        // Simulacion
+        for (int lambda = traficos[a][0]; lambda <= traficos[a][1]; lambda+=traficos[a][2]) {
 
-        // Setear conexiones por banda
-        conexionesPorBanda['C'] = 0;
-        conexionesPorBanda['L'] = 0;
-        conexionesPorBanda['E'] = 0;
-        conexionesPorBanda['S'] = 0;
+            // Crear semillas
+            int seedArrive = rng();
+            int seedDeparture = rng();
+            int seedBitRate = rng();
+            int seedDst = rng();
+            int seedSrc = rng();
+
+            Simulator sim =
+                Simulator(
+                    topologias[a],
+                    rutas[a],
+                    "./src/profiles/bitrates_CL_125.json",
+                    BDM);
+
+            USE_ALLOC_FUNCTION(BestFit, sim);
+            USE_UNALLOC_FUNCTION_BDM(sim);
+            sim.setGoalConnections(nConexiones);
+            sim.setLambda(lambda);
+            sim.setMu(1);
+            
+            // Set Semillas
+            sim.setSeedArrive(seedArrive);
+            sim.setSeedDeparture(seedArrive);
+            sim.setSeedBitRate(seedBitRate);
+            sim.setSeedDst(seedDst);
+            sim.setSeedSrc(seedSrc);
 
 
-        // Crear semillas
-        int seedArrive = rng();
-        int seedBitRate = rng();
-        int seedDst = rng();
-        int seedDeparture = rng();
-        int seedBitRate = rng();
+            sim.init();
+            sim.run();
 
-        Simulator sim =
-            Simulator(std::string("./src/topologies/EuroCore_CLE.json"),
-                std::string("./src/topologies/EuroCore_routes.json"),
-                std::string("./src/profiles/bitrates_CLE.json"),
-                BDM);
-
-        USE_ALLOC_FUNCTION(FirstFit, sim);
-        USE_UNALLOC_FUNCTION_BDM(sim);
-        sim.setGoalConnections(nConexiones);
-        sim.setLambda(lambda);
-        sim.setMu(1);
-
-        // Set Semillas
-        sim.setSeedArrive(seedArrive);
-        sim.setSeedBitRate(seedBitRate);
-        sim.setSeedDst(seedArrive);
-        sim.setSeedDeparture(seedArrive);
-        sim.setSeedDeparture(seedDeparture);
-
-        sim.init();
-        sim.run();
-
-        // Exportar resultados
-        file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
-             << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
-             << std::endl;
-
-        // Asignaciones por banda
-        file    << "C: ," << conexionesPorBanda['C'] << ")\n"
-                << "L: ," << conexionesPorBanda['L'] << ")\n"
-                << "E: ," << conexionesPorBanda['E']  << ")\n"
-                << "S: ," << conexionesPorBanda['S']  << ")"
+            // Guardar datos
+            file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
+                << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
                 << std::endl;
+        }
+        file << std::endl;
+        file.close();
+
+        // Archivo salida
+        file.open(archivosSalida[a+1], std::ios_base::app);
+
+        // Setear variables de BBP
+        for (size_t i = 0; i < 4; i++) {
+            totalBitRate[i] = 0.0;
+            bloqueadosBitRate[i] = 0.0;
+        }
+
+        // Simulacion
+        for (int lambda = traficos[a+1][0]; lambda <= traficos[a+1][1]; lambda+=traficos[a+1][2]) {
+
+            // Crear semillas
+            int seedArrive = rng();
+            int seedDeparture = rng();
+            int seedBitRate = rng();
+            int seedDst = rng();
+            int seedSrc = rng();
+
+            Simulator sim =
+                Simulator(
+                    topologias[a+1],
+                    rutas[a+1],
+                    "./src/profiles/bitrates_CL_125.json",
+                    BDM);
+
+            USE_ALLOC_FUNCTION(FirstFit, sim);
+            USE_UNALLOC_FUNCTION_BDM(sim);
+            sim.setGoalConnections(nConexiones);
+            sim.setLambda(lambda);
+            sim.setMu(1);
+
+            // Set Semillas
+            sim.setSeedArrive(seedArrive);
+            sim.setSeedDeparture(seedArrive);
+            sim.setSeedBitRate(seedBitRate);
+            sim.setSeedDst(seedDst);
+            sim.setSeedSrc(seedSrc);
+
+            sim.init();
+            sim.run();
+
+            // Guardar datos
+            file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
+                << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
+                << std::endl;
+        }
+        file << std::endl;
+        file.close();
     }
-    file << std::endl;
-    file.close();
     return 0;
 }

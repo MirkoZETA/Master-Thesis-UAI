@@ -1,5 +1,5 @@
-#include "./src/functions.hpp"
-#include "./src/simulator.hpp"
+#include "../functions.hpp"
+#include "../simulator.hpp"
 #include <random>
 #include <chrono>
 

@@ -1,5 +1,5 @@
 #!/bin/bash
-source="main_INCREMENTAL.cpp"
+source="./src/scenarios/main_INCREMENTAL.cpp"
 executable="./temp/INCREMENTAL.out"
 
 mkdir -p ./temp

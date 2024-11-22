@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Archivo fuente y ejecutable
-source="main_DYNAMIC_CL_50.cpp"
+source="./src/scenarios/main_DYNAMIC_CL_50.cpp"
 executable="./temp/CL_50.out"
 
 # Número de veces a ejecutar el archivo

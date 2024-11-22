@@ -1,5 +1,5 @@
-#include "./src/functions.hpp"
-#include "./src/simulator.hpp"
+#include "../functions.hpp"
+#include "../simulator.hpp"
 #include <random>
 #include <chrono>
 
@@ -64,6 +64,7 @@ BEGIN_ALLOC_FUNCTION(FirstFit) {
                         for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                             ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], indice, requerido);
                         }
+                        conexionesPorBanda[ordenBandas[b]]++;
                         return ALLOCATED;
                     }
                 }
@@ -135,6 +136,7 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                             for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                                 ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], indice, requerido);
                             }
+                            conexionesPorBanda[ordenBandas[b]]++;
                             return ALLOCATED;
                         }
                         if (total >= requerido && total < mejorTotal){
@@ -154,6 +156,7 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                     for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                         ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], mejorIndice, requerido);
                     }
+                    conexionesPorBanda[ordenBandas[b]]++;
                     return ALLOCATED;
                 }
             }
@@ -171,26 +174,26 @@ END_UNALLOC_CALLBACK_FUNCTION
 
 int main(int argc, char* argv[]) {
 
-    escenario = CLS;
+    escenario = CL;
 
         // Lista de nombres de archivos a guardar
     std::vector<std::string> archivosSalida = {
-        "./results/NSFNet_CLS_BestFit.csv",
-        "./results/NSFNet_CLS_FirstFit.csv",
-        "./results/EuroCore_CLS_BestFit.csv",
-        "./results/EuroCore_CLS_FirstFit.csv",
-        "./results/UKNet_CLS_BestFit.csv",
-        "./results/UKNet_CLS_FirstFit.csv",
+        "./results/NSFNet_CL_50_BestFit.csv",
+        "./results/NSFNet_CL_50_FirstFit.csv",
+        "./results/EuroCore_CL_50_BestFit.csv",
+        "./results/EuroCore_CL_50_FirstFit.csv",
+        "./results/UKNet_CL_50_BestFit.csv",
+        "./results/UKNet_CL_50_FirstFit.csv",
     };
 
     // Archivos topologia y bitrate
     std::vector<std::string> topologias = {
-        "./src/topologies/NSFNet_CLS.json",
-        "./src/topologies/NSFNet_CLS.json",
-        "./src/topologies/EuroCore_CLS.json",
-        "./src/topologies/EuroCore_CLS.json",
-        "./src/topologies/UKNet_CLS.json",
-        "./src/topologies/UKNet_CLS.json",
+        "./src/topologies/NSFNet_CL_50.json",
+        "./src/topologies/NSFNet_CL_50.json",
+        "./src/topologies/EuroCore_CL_50.json",
+        "./src/topologies/EuroCore_CL_50.json",
+        "./src/topologies/UKNet_CL_50.json",
+        "./src/topologies/UKNet_CL_50.json",
     };
 
     std::vector<std::string> rutas = {
@@ -202,25 +205,16 @@ int main(int argc, char* argv[]) {
         "./src/topologies/UKNet_routes.json",
     };
 
-    std::vector<std::string> bitrates = {
-        "./src/profiles/bitrates_CL_625.json",
-        "./src/profiles/bitrates_CL_125.json",
-        "./src/profiles/bitrates_CL_50.json",
-        "./src/profiles/bitrates_CLE.json",
-        "./src/profiles/bitrates_CLS.json"
-    };
-
     // Vector de vectores int con cargas de trafico con el formato {Inicio,Final,Incremento}
     std::vector<std::vector<int>> traficos = {
-        {1000, 4000, 250}, // NSFNet
         {1000, 4000, 250},
-        {4500, 8000, 500}, // EuroCore
-        {4500, 8000, 500},
-        {2500, 8000, 500}, // UKNet
+        {1000, 4000, 250},
+        {2500, 8000, 500},
+        {2500, 8000, 500},
+        {2500, 8000, 500},
         {2500, 8000, 500},
     };
 
-    // 50
     pesoBitRate[0] = 1.0 * 0.5;
     pesoBitRate[1] = 1.5 * 0.5;
     pesoBitRate[2] = 3.0 * 0.5;
@@ -254,7 +248,7 @@ int main(int argc, char* argv[]) {
                 Simulator(
                     topologias[a],
                     rutas[a],
-                    "./src/profiles/bitrates_CLS.json",
+                    "./src/profiles/bitrates_CL_50.json",
                     BDM);
 
             USE_ALLOC_FUNCTION(BestFit, sim);
@@ -270,7 +264,6 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
 
-            // Simular
             sim.init();
             sim.run();
 
@@ -305,7 +298,7 @@ int main(int argc, char* argv[]) {
                 Simulator(
                     topologias[a+1],
                     rutas[a+1],
-                    "./src/profiles/bitrates_CLS.json",
+                    "./src/profiles/bitrates_CL_50.json",
                     BDM);
 
             USE_ALLOC_FUNCTION(FirstFit, sim);
@@ -321,7 +314,7 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
 
-            // Simular
+
             sim.init();
             sim.run();
 
