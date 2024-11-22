@@ -68,15 +68,37 @@ Note: Full simulation sets may take several days. Incremental scenario takes ~1 
 ### Results Format
 
 #### Dynamic Traffic Scenarios
-Output format (per iteration):
+Output format (per Erlang value):
 ```csv
 ERLANG  BP  ERROR   ERROR\\   BBP
 ```
 
-Example:
-```csv
+Each line contains:
+- ERLANG: Traffic load value
+- BP: Blocking Probability
+- ERROR: Margin Errors
+- BBP: Bandwidth Blocking Probability
+
+Example for two Erlang values:
+```
 2500    0.025196    0.00030717    0.00030717\\    0.0252918
 3000    0.0654249   0.000484649   0.000484649\\   0.0453274
+```
+The number of results varies by topology due to different Erlang ranges. For example, NSFNet topology results (one iteration):
+```
+1000	5.99999e-06	5.17083e-06	5.17083e-06\\  7.93334e-06
+1250	0.00297	0.000106671	0.000106671\\  0.00218986
+1500	0.02224	0.000289027	0.000289027\\  0.0121526
+1750	0.049272	0.000424207	0.000424207\\  0.0265783
+2000	0.0767969	0.000521878	0.000521878\\  0.0427261
+2250	0.101892	0.000592901	0.000592901\\  0.0589976
+2500	0.123355	0.000644522	0.000644522\\  0.0745447
+2750	0.144054	0.000688229	0.000688229\\  0.0894169
+3000	0.163115	0.000724147	0.000724147\\  0.103586
+3250	0.181113	0.000754803	0.000754803\\  0.117129
+3500	0.198949	0.000782434	0.000782434\\  0.130148
+3750	0.21533	0.000805643	0.000805643\\  0.142622
+4000	0.231126	0.000826225	0.000826225\\  0.154609
 ```
 
 #### Incremental Traffic Scenario
