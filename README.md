@@ -118,9 +118,9 @@ Example:
 - C++ compiler (g++)
 - Jupyter Notebook (for BBP analysis)
 - Python 3.x with required packages:
- - numpy
- - pandas
- - matplotlib
+    - numpy
+    - pandas
+    - matplotlib
 
 ## Installation
 1. Clone repository
