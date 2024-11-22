@@ -1,10 +1,9 @@
-#include "main.hpp"
+#include "./src/functions.hpp"
 #include "./src/simulator_incremental.hpp"
 #include <random>
 #include <chrono>
 
-// Temp diccionario de codigos debug:
-// std::cout << "DEBUG: 1" << std::endl;
+
 
 // CAPACIDAD
 double bloqueadosTotal;
@@ -41,7 +40,6 @@ BEGIN_ALLOC_FUNCTION(FirstFit) {
 
                 // Slots requeridos por la modulación y bit rate actual
                 requerido = REQ_SLOTS_BDM(m, REQ_POS_BANDS(m)[ordenBandas[b]]);
-                // std::cout << "Bit Rate: " << REQ_BITRATE_STR << " - Modulation: " << REQ_MODULATION(m) << " - Band: " << ordenBandas[b] << " - Slots: " << requerido << std::endl;
 
                 // Obtenemos el vector representativo de los slots ocupados en la ruta (S).
                 if (estadoSlots.find(ordenBandas[b]) == estadoSlots.end()) {
@@ -120,7 +118,6 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
 
                 // Slots requeridos por la modulación y bit rate actual
                 requerido = REQ_SLOTS_BDM(m, REQ_POS_BANDS(m)[ordenBandas[b]]);
-                // std::cout << "Bit Rate: " << REQ_BITRATE_STR << " - Modulation: " << REQ_MODULATION(m) << " - Band: " << ordenBandas[b] << " - Slots: " << requerido << std::endl;
 
                 // Obtenemos el vector representativo de los slots ocupados en la ruta (S).
                 if (estadoSlots.find(ordenBandas[b]) == estadoSlots.end()) {
@@ -200,7 +197,7 @@ int main(int argc, char* argv[]) {
     // Para las semillas
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
-    // Lista de nombres de archivos:
+    // Listado de nombres de escenarios (primeros dos numeros indican topologia y bitrates)
     std::vector<std::string> encabezados = {
         "00 FirstFit - EuroCore - CL_625",
         "00 BestFit - EuroCore - CL_625",
@@ -234,7 +231,7 @@ int main(int argc, char* argv[]) {
         "24 BestFit - NSFNet - CLS"
     };
 
-    // Escenario
+    // Configuración por escenario
     std::vector<int> escenarios = {
         CL,CL,CL,CL,CL,CL,CLE,CLE,CLS,CLS,
         CL,CL,CL,CL,CL,CL,CLE,CLE,CLS,CLS,
@@ -293,16 +290,16 @@ int main(int argc, char* argv[]) {
     };
 
     for (size_t a = 0; a < 29; a+=2){
-        file << encabezados[a] << std::endl;
-        // Dependiendo de los primeros dos strings de encabezados, se selecciona la topología y el perfil de bitrates
+        // Header en archivo de salida
+        file << encabezados[a].substr(3) << std::endl;
+
+        // Dependiendo de los primeros dos strings de encabezados, se selecciona la topología, el perfil de bitrates y escenario
         std::string topologia = topologias[a];
         std::string ruta = rutas[encabezados[a][0] - '0'];
         std::string bitrate = bitrates[encabezados[a][1] - '0'];
         escenario = escenarios[a];
 
-        std::cout << "Topologia" << topologia << " Ruta " << ruta << " Bitrate " << bitrate << " Escenario " << escenario << std::endl;
-
-        // Setear conexiones por banda
+        // Setear conexiones por banda para metricas
         conexionesPorBanda['C'] = 0;
         conexionesPorBanda['L'] = 0;
         conexionesPorBanda['E'] = 0;
@@ -324,7 +321,6 @@ int main(int argc, char* argv[]) {
             calculado = false;
 
             // Simulacion
-
             Simulator sim =
                 Simulator(topologia,
                     ruta,
@@ -344,6 +340,7 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
 
+            // Simular
             sim.init();
             sim.run();
         }
@@ -379,16 +376,16 @@ int main(int argc, char* argv[]) {
         double intervaloBitRate = 2.045 * errorEstandarBitRate;
         double intervaloConexiones = 2.045 * errorEstandarConexiones;
 
-        //file << "Total: " << mediaTotal << '\t' << desviacionTotal << '\t' << errorEstandarTotal << "\t +- " << intervaloTotal << std::endl;
-        file << ", " << mediaTotal << ") +- (" << intervaloTotal << ", " << intervaloTotal << ")" << std::endl;
-        //file << mediaConexiones << '\t' << intervaloConexiones << '\t' << intervaloConexiones << "\\\\" << std::endl;
-        //file << "BitRate: " << mediaBitRate << '\t' << desviacionBitRate << '\t' << errorEstandarBitRate << "\t +- " << intervaloBitRate <<  std::endl;
-        // Guardar asignaciones por banda
-        file    << "C: " << conexionesPorBanda['C']/30
-                << " L: " << conexionesPorBanda['L']/30
-                << " E: " << conexionesPorBanda['E']/30 
-                << " S: " << conexionesPorBanda['S']/30 
-                << '\n'
+        file << ", " << mediaConexiones << ") +- (" << intervaloConexiones << ", " << intervaloConexiones << ")" << std::endl;
+        //file << ", " << mediaTotal << ") +- (" << intervaloTotal << ", " << intervaloTotal << ")" << std::endl;
+        file << ", " << mediaBitRate << ") +- (" << intervaloBitRate << ", " << intervaloBitRate << ")" << std::endl;
+
+        // Asignaciones por banda
+        file    << "C: ," << conexionesPorBanda['C']/30 << ")\n"
+                << "L: ," << conexionesPorBanda['L']/30 << ")\n"
+                << "E: ," << conexionesPorBanda['E']/30  << ")\n"
+                << "S: ," << conexionesPorBanda['S']/30  << ")"
+                << "\n\n"
                 << std::endl;
 
         // Limpiar vectores
@@ -396,15 +393,19 @@ int main(int argc, char* argv[]) {
         valoresBitRate.clear();
         valoresConexiones.clear();
 
-        // Setear conexiones por banda
+        // Setear conexiones por banda para metricas
         conexionesPorBanda['C'] = 0;
         conexionesPorBanda['L'] = 0;
         conexionesPorBanda['E'] = 0;
         conexionesPorBanda['S'] = 0;
 
         
-        file << encabezados[a+1] << std::endl;
+        // Header en archivo de salida
+        file << encabezados[a].substr(3) << std::endl;
+
+        // Selecciona escenario
         escenario = escenarios[a+1];
+        
         for (size_t i = 0; i < 30; i++){
             
             // Crear semillas
@@ -421,7 +422,6 @@ int main(int argc, char* argv[]) {
             calculado = false;
 
             // Simulacion
-
             Simulator sim =
                 Simulator(topologia,
                     ruta,
@@ -441,7 +441,7 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
             
-
+            // Simular
             sim.init();
             sim.run();
         }
@@ -477,24 +477,27 @@ int main(int argc, char* argv[]) {
         intervaloBitRate = 2.045 * errorEstandarBitRate;
         intervaloConexiones = 2.045 * errorEstandarConexiones;
 
-        //file << "Total: " << mediaTotal << '\t' << desviacionTotal << '\t' << errorEstandarTotal << "\t +- " << intervaloTotal << std::endl;
-        file << ", " << mediaTotal << ") +- (" << intervaloTotal << ", " << intervaloTotal << ")" << std::endl;
-        //file << mediaConexiones << '\t' << intervaloConexiones << '\t' << intervaloConexiones << "\\\\" << std::endl;
-        //file << "BitRate: " << mediaBitRate << '\t' << desviacionBitRate << '\t' << errorEstandarBitRate << "\t +- " << intervaloBitRate <<  std::endl;
-        // Guardar asignaciones por banda
-        file    << "C: " << conexionesPorBanda['C']/30
-                << " L: " << conexionesPorBanda['L']/30
-                << " E: " << conexionesPorBanda['E']/30 
-                << " S: " << conexionesPorBanda['S']/30 
-                << '\n'
+        file << ", " << mediaConexiones << ") +- (" << intervaloConexiones << ", " << intervaloConexiones << ")" << std::endl;
+        //file << ", " << mediaTotal << ") +- (" << intervaloTotal << ", " << intervaloTotal << ")" << std::endl;
+        file << ", " << mediaBitRate << ") +- (" << intervaloBitRate << ", " << intervaloBitRate << ")" << std::endl;
+
+        // Asignaciones por banda
+        file    << "C: ," << conexionesPorBanda['C']/30 << ")\n"
+                << "L: ," << conexionesPorBanda['L']/30 << ")\n"
+                << "E: ," << conexionesPorBanda['E']/30  << ")\n"
+                << "S: ," << conexionesPorBanda['S']/30  << ")"
+                << "\n\n"
                 << std::endl;
 
         // Limpiar vectores
         valoresTotales.clear();
         valoresBitRate.clear();
         valoresConexiones.clear();
-        
+
     }
+
+    // Cerramos archivo
     file.close();
+    
     return 0;
 }

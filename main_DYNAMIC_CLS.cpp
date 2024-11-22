@@ -1,10 +1,9 @@
-#include "main.hpp"
+#include "./src/functions.hpp"
 #include "./src/simulator.hpp"
 #include <random>
 #include <chrono>
 
-// Temp diccionario de codigos debug:
-// std::cout << "DEBUG: 1" << std::endl;
+
 
 BEGIN_ALLOC_FUNCTION(FirstFit) {
     // Variables de control
@@ -35,7 +34,6 @@ BEGIN_ALLOC_FUNCTION(FirstFit) {
 
                 // Slots requeridos por la modulación y bit rate actual
                 requerido = REQ_SLOTS_BDM(m, REQ_POS_BANDS(m)[ordenBandas[b]]);
-                // std::cout << "Bit Rate: " << REQ_BITRATE_STR << " - Modulation: " << REQ_MODULATION(m) << " - Band: " << ordenBandas[b] << " - Slots: " << requerido << std::endl;
 
                 // Obtenemos el vector representativo de los slots ocupados en la ruta (S).
                 if (estadoSlots.find(ordenBandas[b]) == estadoSlots.end()) {
@@ -66,7 +64,6 @@ BEGIN_ALLOC_FUNCTION(FirstFit) {
                         for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                             ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], indice, requerido);
                         }
-                        conexionesPorBanda[ordenBandas[b]]++;
                         return ALLOCATED;
                     }
                 }
@@ -109,7 +106,6 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
 
                 // Slots requeridos por la modulación y bit rate actual
                 requerido = REQ_SLOTS_BDM(m, REQ_POS_BANDS(m)[ordenBandas[b]]);
-                // std::cout << "Bit Rate: " << REQ_BITRATE_STR << " - Modulation: " << REQ_MODULATION(m) << " - Band: " << ordenBandas[b] << " - Slots: " << requerido << std::endl;
 
                 // Obtenemos el vector representativo de los slots ocupados en la ruta (S).
                 if (estadoSlots.find(ordenBandas[b]) == estadoSlots.end()) {
@@ -139,7 +135,6 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                             for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                                 ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], indice, requerido);
                             }
-                            conexionesPorBanda[ordenBandas[b]]++;
                             return ALLOCATED;
                         }
                         if (total >= requerido && total < mejorTotal){
@@ -159,7 +154,6 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                     for (size_t l = 0; l < NUMBER_OF_LINKS(r); l++){
                         ALLOC_SLOTS_BDM(LINK_IN_ROUTE_ID(r, l), ordenBandas[b], mejorIndice, requerido);
                     }
-                    conexionesPorBanda[ordenBandas[b]]++;
                     return ALLOCATED;
                 }
             }
@@ -171,7 +165,7 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
 END_ALLOC_FUNCTION
 
 BEGIN_UNALLOC_CALLBACK_FUNCTION{
-    int z; // TO DO: Indignado porque tengo que hacer esto, una locura.
+
 }
 END_UNALLOC_CALLBACK_FUNCTION
 
@@ -179,7 +173,7 @@ int main(int argc, char* argv[]) {
 
     escenario = CLS;
 
-        // Lista de nombres de archivos:
+        // Lista de nombres de archivos a guardar
     std::vector<std::string> archivosSalida = {
         "./results/NSFNet_CLS_BestFit.csv",
         "./results/NSFNet_CLS_FirstFit.csv",
@@ -216,7 +210,7 @@ int main(int argc, char* argv[]) {
         "./src/profiles/bitrates_CLS.json"
     };
 
-    // Vector de vectores int con cargas de trafico con el formato {500,500,500}
+    // Vector de vectores int con cargas de trafico con el formato {Inicio,Final,Incremento}
     std::vector<std::vector<int>> traficos = {
         {1000, 4000, 250}, // NSFNet
         {1000, 4000, 250},
@@ -235,8 +229,9 @@ int main(int argc, char* argv[]) {
     // Para las semillas
     std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
+    // Por cada arhivo de salida
     for (size_t a = 0; a < 6; a+=2){
-        // Archivo salida
+        // Se crea el archivo
         file.open(archivosSalida[a], std::ios_base::app);
 
         // Setear variables de BBP
@@ -245,14 +240,8 @@ int main(int argc, char* argv[]) {
             bloqueadosBitRate[i] = 0.0;
         }
 
-        // Simulacion
+        // Simulacion BESTFIT
         for (int lambda = traficos[a][0]; lambda <= traficos[a][1]; lambda+=traficos[a][2]) {
-
-            // Setear conexiones por banda
-            conexionesPorBanda['C'] = 0;
-            conexionesPorBanda['L'] = 0;
-            conexionesPorBanda['E'] = 0;
-            conexionesPorBanda['S'] = 0;
 
             // Crear semillas
             int seedArrive = rng();
@@ -270,7 +259,7 @@ int main(int argc, char* argv[]) {
 
             USE_ALLOC_FUNCTION(BestFit, sim);
             USE_UNALLOC_FUNCTION_BDM(sim);
-            sim.setGoalConnections(1e6);
+            sim.setGoalConnections(nConexiones);
             sim.setLambda(lambda);
             sim.setMu(1);
 
@@ -281,6 +270,7 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
 
+            // Simular
             sim.init();
             sim.run();
 
@@ -288,13 +278,8 @@ int main(int argc, char* argv[]) {
             file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
                 << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
                 << std::endl;
-            // Guardar asignaciones por banda
-            // file    << "C: " << conexionesPorBanda['C'] 
-            //         << " L: " << conexionesPorBanda['L'] 
-            //         << " E: " << conexionesPorBanda['E'] 
-            //         << " S: " << conexionesPorBanda['S'] 
-            //         << std::endl;
         }
+        file << std::endl;
         file.close();
 
         // Archivo salida
@@ -306,14 +291,8 @@ int main(int argc, char* argv[]) {
             bloqueadosBitRate[i] = 0.0;
         }
 
-        // Simulacion
+        // Simulacion FIRSTFIT
         for (int lambda = traficos[a+1][0]; lambda <= traficos[a+1][1]; lambda+=traficos[a+1][2]) {
-
-            // Setear conexiones por banda
-            conexionesPorBanda['C'] = 0;
-            conexionesPorBanda['L'] = 0;
-            conexionesPorBanda['E'] = 0;
-            conexionesPorBanda['S'] = 0;
 
             // Crear semillas
             int seedArrive = rng();
@@ -331,7 +310,7 @@ int main(int argc, char* argv[]) {
 
             USE_ALLOC_FUNCTION(FirstFit, sim);
             USE_UNALLOC_FUNCTION_BDM(sim);
-            sim.setGoalConnections(1e6);
+            sim.setGoalConnections(nConexiones);
             sim.setLambda(lambda);
             sim.setMu(1);
 
@@ -342,6 +321,7 @@ int main(int argc, char* argv[]) {
             sim.setSeedDst(seedDst);
             sim.setSeedSrc(seedSrc);
 
+            // Simular
             sim.init();
             sim.run();
 
@@ -349,13 +329,8 @@ int main(int argc, char* argv[]) {
             file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
                 << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
                 << std::endl;
-            // Guardar asignaciones por banda
-            // file    << "C: " << conexionesPorBanda['C'] 
-            //         << " L: " << conexionesPorBanda['L'] 
-            //         << " E: " << conexionesPorBanda['E'] 
-            //         << " S: " << conexionesPorBanda['S'] 
-            //         << std::endl;
         }
+        file << std::endl;
         file.close();
     }
     return 0;
