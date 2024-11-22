@@ -81,7 +81,7 @@ Example:
 
 #### Incremental Traffic Scenario
 Output format:
-
+```
 HEADER SCENARIO
 , NCONECTIONS) +- (ERROR, ERROR)
 , TOTALBITRATE +- (ERROR, ERROR)
@@ -89,8 +89,9 @@ C: ,NConnextionsInC)
 L: ,NConnextionsInL)
 E: ,NConnextionsInE)
 S: ,NConnextionsInS)
-
+```
 Example:
+```
 FirstFit - EuroCore - CL_625
 , 6133.53) +- (56.7492, 56.7492)
 , 1.52916e+06) +- (14154.3, 14154.3)
@@ -98,18 +99,18 @@ C: ,1176)
 L: ,4956)
 E: ,0)
 S: ,0)
-
+```
 #### BBP Analysis
 After running BP scripts, run Jupyter notebook: ./results/compute_BBP.ipynb
 
 Output format:
-```csv
+```
 BBP RESULTS
 ERLANG      BBP     ERROR       ERROR\\
 ```
 
 Example:
-```csv
+```
 2500    0.025260    0.000325    0.000325\\
 3000    0.045405    0.000178    0.000178\\
 ```
