@@ -25,6 +25,7 @@ This research project conducts extensive simulations comparing different multi-b
 The study evaluates network capacity, spectrum efficiency, blocking probability (BP), and bandwidth blocking probability (BBP) across multiple scenarios.
 
 ## Project Structure
+```
 project/
 ├── src/                            # Source code files
 │   ├── profiles/                   # Traffic demands and bit rates
@@ -44,7 +45,7 @@ project/
 ├── temp/                          # Temporary executables
 ├── main_*.cpp                     # Main simulation files
 └── README.md
-
+```
 ## Usage Instructions
 
 ### Running Simulations
