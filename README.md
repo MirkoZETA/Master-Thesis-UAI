@@ -119,7 +119,7 @@ Example:
 - Jupyter Notebook (for BBP analysis)
 - Python 3.x with required packages:
     - numpy
-    - pandas
+    - scipy
     - matplotlib
 
 ## Installation
