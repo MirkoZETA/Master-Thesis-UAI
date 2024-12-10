@@ -111,19 +111,28 @@ C: ,NConnextionsInC)
 L: ,NConnextionsInL)
 E: ,NConnextionsInE)
 S: ,NConnextionsInS)
+C: ,TotalBitRateInC)
+L: ,TotalBitRateInL)
+E: ,TotalBitRateInE)
+S: ,TotalBitRateInS)
 ```
 Example:
 ```
 FirstFit - EuroCore - CL_625
-, 6133.53) +- (56.7492, 56.7492)
-, 1.52916e+06) +- (14154.3, 14154.3)
-C: ,1176)
-L: ,4956)
+, 6160.93) +- (50.48, 50.48)
+, 1.53588e+06) +- (11488.4, 11488.4)
+C: ,1195)
+L: ,4965)
+E: ,0)
+S: ,0)
+
+C: ,297176)
+L: ,1238703)
 E: ,0)
 S: ,0)
 ```
 #### BBP Analysis
-After running BP scripts, run Jupyter notebook: ./results/compute_BBP.ipynb
+After running BP scripts, run Jupyter notebook: `./results/compute_BBP.ipynb`. This will calculate the BBP values based on the BP iterations.
 
 Output format:
 ```

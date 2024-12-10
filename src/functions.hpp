@@ -56,6 +56,7 @@ double BBP(double totalBitRate[4], double bloqueadosBitRate[4], double pesoBitRa
 
 // Cantidad de conexiones por banda
 std::map<char, int> conexionesPorBanda;
+std::map<char, int> bitRatePorBanda;
 
 
 // QoT Aware Future WORK:

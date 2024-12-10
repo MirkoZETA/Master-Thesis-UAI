@@ -3,8 +3,6 @@
 #include <random>
 #include <chrono>
 
-
-
 // CAPACIDAD
 double bloqueadosTotal;
 double conectadosTotal;
@@ -72,7 +70,10 @@ BEGIN_ALLOC_FUNCTION(FirstFit) {
                         }
                         conectadosTotal++;
                         bitRateTotal += REQ_BITRATE;
-                        if (calculado == false) conexionesPorBanda[ordenBandas[b]]++;
+                        if (calculado == false) {
+                            conexionesPorBanda[ordenBandas[b]]++;
+                            bitRatePorBanda[ordenBandas[b]] += REQ_BITRATE;
+                        }
                         return ALLOCATED;
                     }
                 }
@@ -149,7 +150,10 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                             }
                             conectadosTotal++;
                             bitRateTotal += REQ_BITRATE;
-                            if (calculado == false) conexionesPorBanda[ordenBandas[b]]++;
+                            if (calculado == false) {
+                                conexionesPorBanda[ordenBandas[b]]++;
+                                bitRatePorBanda[ordenBandas[b]] += REQ_BITRATE;
+                            }
                             return ALLOCATED;
                         }
                         if (total >= requerido && total < mejorTotal){
@@ -171,7 +175,10 @@ BEGIN_ALLOC_FUNCTION(BestFit) {
                     }
                     conectadosTotal++;
                     bitRateTotal += REQ_BITRATE;
-                    if (calculado == false) conexionesPorBanda[ordenBandas[b]]++;
+                    if (calculado == false) {
+                        conexionesPorBanda[ordenBandas[b]]++;
+                        bitRatePorBanda[ordenBandas[b]] += REQ_BITRATE;
+                    }
                     return ALLOCATED;
                 }
             }
@@ -304,6 +311,11 @@ int main(int argc, char* argv[]) {
         conexionesPorBanda['L'] = 0;
         conexionesPorBanda['E'] = 0;
         conexionesPorBanda['S'] = 0;
+        bitRatePorBanda['C'] = 0;
+        bitRatePorBanda['L'] = 0;
+        bitRatePorBanda['E'] = 0;
+        bitRatePorBanda['S'] = 0;
+
 
         for (size_t i = 0; i < 30; i++){
             
@@ -385,6 +397,13 @@ int main(int argc, char* argv[]) {
                 << "L: ," << conexionesPorBanda['L']/30 << ")\n"
                 << "E: ," << conexionesPorBanda['E']/30  << ")\n"
                 << "S: ," << conexionesPorBanda['S']/30  << ")"
+                << "\n"
+                << std::endl;
+
+        file    << "C: ," << bitRatePorBanda['C']/30 << ")\n"
+                << "L: ," << bitRatePorBanda['L']/30 << ")\n"
+                << "E: ," << bitRatePorBanda['E']/30  << ")\n"
+                << "S: ," << bitRatePorBanda['S']/30  << ")"
                 << "\n\n"
                 << std::endl;
 
@@ -398,10 +417,14 @@ int main(int argc, char* argv[]) {
         conexionesPorBanda['L'] = 0;
         conexionesPorBanda['E'] = 0;
         conexionesPorBanda['S'] = 0;
+        bitRatePorBanda['C'] = 0;
+        bitRatePorBanda['L'] = 0;
+        bitRatePorBanda['E'] = 0;
+        bitRatePorBanda['S'] = 0;
 
         
         // Header en archivo de salida
-        file << encabezados[a].substr(3) << std::endl;
+        file << encabezados[a+1].substr(3) << std::endl;
 
         // Selecciona escenario
         escenario = escenarios[a+1];
@@ -486,6 +509,13 @@ int main(int argc, char* argv[]) {
                 << "L: ," << conexionesPorBanda['L']/30 << ")\n"
                 << "E: ," << conexionesPorBanda['E']/30  << ")\n"
                 << "S: ," << conexionesPorBanda['S']/30  << ")"
+                << "\n"
+                << std::endl;
+
+        file    << "C: ," << bitRatePorBanda['C']/30 << ")\n"
+                << "L: ," << bitRatePorBanda['L']/30 << ")\n"
+                << "E: ," << bitRatePorBanda['E']/30  << ")\n"
+                << "S: ," << bitRatePorBanda['S']/30  << ")"
                 << "\n\n"
                 << std::endl;
 
