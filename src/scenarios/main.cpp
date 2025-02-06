@@ -169,26 +169,11 @@ END_UNALLOC_CALLBACK_FUNCTION
 
 int main(int argc, char* argv[]) {
 
-    // 625
-    // pesoBitRate[0] = 3.5 * 0.0625;
-    // pesoBitRate[1] = 6.83 * 0.0625;
-    // pesoBitRate[2] = 9.83 * 0.0625;
-    // pesoBitRate[3] = 13.33 * 0.0625;
-
-    // 125
-    // pesoBitRate[0] = 1.83 * 0.125;
-    // pesoBitRate[1] = 3.50 * 0.125;
-    // pesoBitRate[2] = 5.0 * 0.125;
-    // pesoBitRate[3] = 5.50 * 0.125;
-
-    // 50
+    // Default
     pesoBitRate[0] = 1.0 * 0.5;
     pesoBitRate[1] = 1.5 * 0.5;
     pesoBitRate[2] = 3.0 * 0.5;
     pesoBitRate[3] = 2.25 * 0.5;
-
-    // Para las semillas
-    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
 
     // Abrir archivo de salida
     file.open("./results/test.csv", std::ios_base::app);
@@ -199,58 +184,58 @@ int main(int argc, char* argv[]) {
         bloqueadosBitRate[i] = 0.0;
     }
 
-    // Simulacion
-    for (int lambda = 2500; lambda <= 8000; lambda+=500) {
-
-        // Setear conexiones por banda
-        conexionesPorBanda['C'] = 0;
-        conexionesPorBanda['L'] = 0;
-        conexionesPorBanda['E'] = 0;
-        conexionesPorBanda['S'] = 0;
+    // Setear conexiones por banda
+    conexionesPorBanda['C'] = 0;
+    conexionesPorBanda['L'] = 0;
+    conexionesPorBanda['E'] = 0;
+    conexionesPorBanda['S'] = 0;
 
 
-        // Crear semillas
-        int seedArrive = rng();
-        int seedBitRate = rng();
-        int seedDst = rng();
-        int seedDeparture = rng();
-        int seedBitRate = rng();
+    // Crear semillas
+    std::mt19937 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+    // int seedArrive = rng();
+    // int seedBitRate = rng();
+    // int seedDst = rng();
+    // int seedDeparture = rng();
+    // int seedBitRate = rng();
 
-        Simulator sim =
-            Simulator(std::string("./src/topologies/EuroCore_CLE.json"),
-                std::string("./src/topologies/EuroCore_routes.json"),
-                std::string("./src/profiles/bitrates_CLE.json"),
-                BDM);
+    int lambda = 1500;
 
-        USE_ALLOC_FUNCTION(FirstFit, sim);
-        USE_UNALLOC_FUNCTION_BDM(sim);
-        sim.setGoalConnections(nConexiones);
-        sim.setLambda(lambda);
-        sim.setMu(1);
+    Simulator sim =
+        Simulator(std::string("./testfiles/NSFNet.json"),
+            std::string("./testfiles/routes.json"),
+            std::string("./testfiles/bitrates.json"),
+            BDM);
 
-        // Set Semillas
-        sim.setSeedArrive(seedArrive);
-        sim.setSeedBitRate(seedBitRate);
-        sim.setSeedDst(seedArrive);
-        sim.setSeedDeparture(seedArrive);
-        sim.setSeedDeparture(seedDeparture);
+    USE_ALLOC_FUNCTION(FirstFit, sim);
+    USE_UNALLOC_FUNCTION_BDM(sim);
+    sim.setGoalConnections(nConexiones);
+    sim.setLambda(lambda);
+    sim.setMu(1);
 
-        sim.init();
-        sim.run();
+    // Set Semillas
+    // sim.setSeedArrive(seedArrive);
+    // sim.setSeedBitRate(seedBitRate);
+    // sim.setSeedDst(seedArrive);
+    // sim.setSeedDeparture(seedArrive);
+    // sim.setSeedDeparture(seedDeparture);
 
-        // Exportar resultados
-        file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
-             << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
-             << std::endl;
+    sim.init();
+    sim.run();
 
-        // Asignaciones por banda
-        file    << "C: ," << conexionesPorBanda['C'] << ")\n"
-                << "L: ," << conexionesPorBanda['L'] << ")\n"
-                << "E: ," << conexionesPorBanda['E']  << ")\n"
-                << "S: ," << conexionesPorBanda['S']  << ")"
-                << std::endl;
-    }
+    // Exportar resultados
+    file << lambda << "\t" << sim.getBlockingProbability() << "\t" << sim.wilsonCI() << "\t" << sim.wilsonCI() << "\\\\  " 
+            << BBP(totalBitRate, bloqueadosBitRate, pesoBitRate) 
+            << std::endl;
+
+    // Asignaciones por banda
+    file    << "C: ," << conexionesPorBanda['C'] << ")\n"
+            << "L: ," << conexionesPorBanda['L'] << ")\n"
+            << "E: ," << conexionesPorBanda['E']  << ")\n"
+            << "S: ," << conexionesPorBanda['S']  << ")"
+            << std::endl;
     file << std::endl;
     file.close();
+    
     return 0;
 }
