@@ -53,7 +53,7 @@ All scripts must be executed from root directory.
 
 ```bash
 cd multiband-eon-thesis
-chmod +x ./scripts/[script_name].sh
+chmod a+x ./scripts/[script_name].sh
 ./scripts/[script_name].sh
 ```
 
