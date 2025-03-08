@@ -1,5 +1,11 @@
-# Multi-band EON Thesis
-Comparative analysis of multi-band optical networks focusing on Elastic Optical Networks (EON) in C+L bands versus fixed-grid networks in C+L+E/S bands. Research on network capacity, spectrum efficiency, and performance optimization.
+# Multi-band EON Thesis  
+
+This repository contains the **master thesis** of **Mirko Zitkovich** at **Adolfo Ibáñez University**. The research evaluates the performance of **Elastic Optical Networks (EON)** operating in **C+L bands** against fixed-grid networks extended to **C+L+E/S bands**, analyzing **network capacity and blocking probability**.  
+
+Inside this repository, you will find:  
+- The **manuscript** detailing the study and findings.  
+- The **data** used for simulations and analysis.  
+- The **code** developed for modeling and evaluation.  
 
 ## Key Findings & Conclusiones
 
